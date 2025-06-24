@@ -1,104 +1,162 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>심플 환율 계산기</title>
+<title>Simple Currency Converter</title>
 <style>
-  /* Reset & 기본 스타일 */
+  /* Reset & basics */
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background: #f7f9fc; color: #222; display: flex; flex-direction: column; min-height: 100vh;
+    background: #fff;
+    color: #222;
+    display: flex; flex-direction: column; min-height: 100vh;
   }
   header {
-    background: #1e88e5; color: white; padding: 1rem; text-align: center;
-    font-size: 1.5rem; font-weight: 600;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #ff6f61, #de4313);
+    color: white;
   }
   main {
-    flex: 1; padding: 1rem;
-    max-width: 420px; margin: 0 auto; width: 100%;
+    flex: 1;
+    max-width: 440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
   }
-  /* 기준통화 선택 */
-  label { font-weight: 600; display: block; margin-bottom: 0.5rem; }
+
+  label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #444;
+  }
   select {
-    width: 100%; padding: 0.6rem 0.8rem; font-size: 1rem; border-radius: 8px;
-    border: 1px solid #ddd; margin-bottom: 1rem;
-    appearance: none; background: white url("data:image/svg+xml,%3Csvg fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center / 16px 16px;
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 1.2rem;
+    appearance: none;
+    background: white url("data:image/svg+xml,%3Csvg fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center / 16px 16px;
     cursor: pointer;
   }
 
-  /* 숫자 디스플레이 */
   #amountDisplay {
-    font-size: 2.8rem; font-weight: 700; text-align: right;
-    background: white; border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 2.8rem;
+    font-weight: 700;
+    text-align: right;
+    background: #fefefe;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow:
+      0 4px 6px rgba(255, 111, 97, 0.3),
+      0 2px 4px rgba(255, 111, 97, 0.25);
     user-select: none;
   }
 
-  /* 숫자패드 */
   #keypad {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 1.5rem;
   }
   .keyBtn {
-    background: white; border-radius: 10px;
-    font-size: 2.2rem; font-weight: 700; color: #1e88e5;
-    display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    user-select: none; cursor: pointer;
-    height: 60px;
+    background: white;
+    border-radius: 12px;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ff6f61;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow:
+      0 4px 8px rgba(222, 67, 19, 0.35);
+    user-select: none;
+    cursor: pointer;
+    height: 64px;
     transition: background-color 0.15s ease;
   }
   .keyBtn:active {
-    background-color: #cce4ff;
+    background-color: #ffd8d3;
   }
 
-  /* 환산 결과 */
   #resultTable {
-    width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 8px rgba(222, 67, 19, 0.15);
   }
-  #resultTable th, #resultTable td {
-    padding: 10px 12px; border-bottom: 1px solid #eee; text-align: center;
+  #resultTable th,
+  #resultTable td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
     font-size: 1rem;
   }
   #resultTable th {
-    background-color: #1e88e5; color: white;
+    background-color: #ff6f61;
+    color: white;
     font-weight: 600;
   }
   #resultTable tr:last-child td {
     border-bottom: none;
   }
+
   .currency-cell {
-    display: flex; align-items: center; gap: 8px; justify-content: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
   }
   .flag {
-    width: 28px; height: 20px; object-fit: cover; border-radius: 3px;
-    box-shadow: 0 0 3px rgba(0,0,0,0.15);
+    width: 28px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
   }
 
-  /* 모바일 대응 */
+  /* Mobile */
   @media (max-width: 480px) {
-    #amountDisplay { font-size: 2.4rem; }
-    .keyBtn { font-size: 1.8rem; height: 54px; }
-    #resultTable th, #resultTable td { font-size: 0.9rem; padding: 8px 10px; }
+    #amountDisplay {
+      font-size: 2.2rem;
+    }
+    .keyBtn {
+      font-size: 1.8rem;
+      height: 56px;
+    }
+    #resultTable th,
+    #resultTable td {
+      font-size: 0.9rem;
+      padding: 10px 12px;
+    }
   }
 </style>
 </head>
 <body>
 
-<header>심플 환율 계산기</header>
+<header>Simple Currency Converter</header>
 <main>
-  <label for="baseCurrency">기준 통화 선택</label>
-  <select id="baseCurrency" aria-label="기준 통화 선택">
-    <!-- 옵션은 JS에서 동적으로 채워줌 -->
+  <label for="baseCurrency">Select Base Currency</label>
+  <select id="baseCurrency" aria-label="Select base currency">
+    <!-- dynamically populated -->
   </select>
 
   <div id="amountDisplay" aria-live="polite" aria-atomic="true">0</div>
 
-  <div id="keypad" role="grid" aria-label="숫자 입력 키패드">
+  <div id="keypad" role="grid" aria-label="Number input keypad">
     <div class="keyBtn" role="button" tabindex="0">1</div>
     <div class="keyBtn" role="button" tabindex="0">2</div>
     <div class="keyBtn" role="button" tabindex="0">3</div>
@@ -113,23 +171,22 @@
     <div class="keyBtn" role="button" tabindex="0" id="clearBtn">⌫</div>
   </div>
 
-  <table id="resultTable" aria-label="환산 결과">
+  <table id="resultTable" aria-label="Conversion results">
     <thead>
       <tr>
-        <th>국가</th>
-        <th>통화</th>
-        <th>환산 금액</th>
-        <th>소비 예시</th>
+        <th>Country</th>
+        <th>Currency</th>
+        <th>Converted Amount</th>
       </tr>
     </thead>
     <tbody>
-      <!-- 결과 동적 생성 -->
+      <!-- results dynamically inserted -->
     </tbody>
   </table>
 </main>
 
 <script>
-  const apiKey = 'e6af8843c57bbaeeb525e285'; // 너가 준 키
+  const apiKey = 'e6af8843c57bbaeeb525e285'; // Your API key
   const baseSelect = document.getElementById('baseCurrency');
   const amountDisplay = document.getElementById('amountDisplay');
   const keypad = document.getElementById('keypad');
@@ -137,60 +194,50 @@
 
   let amountStr = '0';
   let baseCurrency = 'USD';
-
-  // 환율 API 호출 후 저장용
   let rates = {};
 
-  // 소비 예시 (간단히 주요 통화만)
-  const consumptionExamples = {
-    VND: [{ limit: 20000, item: '로컬 커피' }, { limit: 50000, item: '쌀국수 한 그릇' }, { limit: 100000, item: '분짜 세트' }],
-    KRW: [{ limit: 2000, item: '편의점 삼각김밥' }, { limit: 5000, item: '김밥천국 라면' }, { limit: 10000, item: '브런치 1인분' }],
-    USD: [{ limit: 2, item: '맥도날드 커피' }, { limit: 5, item: '버거킹 햄버거' }, { limit: 10, item: '푸드트럭 타코' }],
-    EUR: [{ limit: 2, item: '에스프레소 한 잔' }, { limit: 5, item: '베이커리 크로와상' }, { limit: 10, item: '점심 도시락' }],
-    JPY: [{ limit: 300, item: '편의점 주먹밥' }, { limit: 700, item: '규동 미니' }, { limit: 1200, item: '카레라이스' }],
-    PHP: [{ limit: 30, item: '로컬 사이다' }, { limit: 70, item: '길거리 간식' }, { limit: 150, item: '패스트푸드 정식' }],
-    IDR: [{ limit: 10000, item: '물 한 병' }, { limit: 25000, item: '나시고랭' }, { limit: 50000, item: '인도네시아 정식' }],
-    GBP: [{ limit: 3, item: '사과 한 개' }, { limit: 6, item: '샌드위치 하나' }, { limit: 10, item: '피쉬앤칩스 소형' }],
-    HKD: [{ limit: 10, item: '에그타르트 2개' }, { limit: 20, item: '딤섬 작은 접시' }, { limit: 40, item: '면 요리 1인분' }],
-    THB: [{ limit: 30, item: '로컬 콜라' }, { limit: 60, item: '팟타이 한 접시' }, { limit: 120, item: '마사지 30분' }],
-  };
-
-  // 국가 정보 (국기 이미지 URL + 국가명)
+  // Countries with flags (using flagcdn)
   const countries = {
     USD: { name: 'United States', flag: 'https://flagcdn.com/us.svg' },
-    KRW: { name: 'South Korea', flag: 'https://flagcdn.com/kr.svg' },
-    VND: { name: 'Vietnam', flag: 'https://flagcdn.com/vn.svg' },
     EUR: { name: 'Eurozone', flag: 'https://flagcdn.com/eu.svg' },
+    KRW: { name: 'South Korea', flag: 'https://flagcdn.com/kr.svg' },
     JPY: { name: 'Japan', flag: 'https://flagcdn.com/jp.svg' },
+    GBP: { name: 'United Kingdom', flag: 'https://flagcdn.com/gb.svg' },
+    VND: { name: 'Vietnam', flag: 'https://flagcdn.com/vn.svg' },
     PHP: { name: 'Philippines', flag: 'https://flagcdn.com/ph.svg' },
     IDR: { name: 'Indonesia', flag: 'https://flagcdn.com/id.svg' },
-    GBP: { name: 'United Kingdom', flag: 'https://flagcdn.com/gb.svg' },
-    HKD: { name: 'Hong Kong', flag: 'https://flagcdn.com/hk.svg' },
     THB: { name: 'Thailand', flag: 'https://flagcdn.com/th.svg' },
+    AUD: { name: 'Australia', flag: 'https://flagcdn.com/au.svg' },
+    CAD: { name: 'Canada', flag: 'https://flagcdn.com/ca.svg' },
+    CHF: { name: 'Switzerland', flag: 'https://flagcdn.com/ch.svg' },
+    CNY: { name: 'China', flag: 'https://flagcdn.com/cn.svg' },
+    NZD: { name: 'New Zealand', flag: 'https://flagcdn.com/nz.svg' },
+    SEK: { name: 'Sweden', flag: 'https://flagcdn.com/se.svg' },
+    MXN: { name: 'Mexico', flag: 'https://flagcdn.com/mx.svg' },
   };
 
-  // 기본 통화 옵션 동적 생성
   function populateBaseSelect() {
     Object.entries(countries).forEach(([code, info]) => {
       const option = document.createElement('option');
       option.value = code;
-      option.textContent = `${info.flag ? '' : ''} ${info.name} (${code})`;
-      option.style.backgroundImage = `url(${info.flag})`;
-      option.style.backgroundRepeat = 'no-repeat';
-      option.style.backgroundSize = '20px 14px';
-      option.style.paddingLeft = '28px';
       option.textContent = `${info.name} (${code})`;
       baseSelect.appendChild(option);
     });
     baseSelect.value = baseCurrency;
   }
 
-  // 금액 표시 업데이트
   function updateAmountDisplay() {
     amountDisplay.textContent = amountStr;
   }
 
-  // 키패드 입력 처리
+  function formatAmount(num) {
+    if (Number.isInteger(num)) {
+      return num.toLocaleString();
+    } else {
+      return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  }
+
   keypad.addEventListener('click', e => {
     if (!e.target.classList.contains('keyBtn')) return;
     const key = e.target.textContent;
@@ -207,13 +254,11 @@
     calculateAndRender();
   });
 
-  // 기준 통화 변경 처리
   baseSelect.addEventListener('change', e => {
     baseCurrency = e.target.value;
     fetchRates();
   });
 
-  // 환율 API 호출
   function fetchRates() {
     fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`)
       .then(res => res.json())
@@ -222,27 +267,22 @@
           rates = data.conversion_rates;
           calculateAndRender();
         } else {
-          alert('환율 정보를 불러오는 데 실패했습니다.');
+          alert('Failed to load exchange rates.');
         }
       })
-      .catch(() => alert('환율 API 호출 중 오류가 발생했습니다.'));
+      .catch(() => alert('Error fetching exchange rates.'));
   }
 
-  // 환산 및 결과 테이블 렌더링
   function calculateAndRender() {
     if (!rates) return;
     const amount = parseFloat(amountStr);
     if (isNaN(amount)) return;
-
-    // 결과 테이블 초기화
     resultBody.innerHTML = '';
 
     Object.entries(rates).forEach(([code, rate]) => {
-      if (!(code in countries)) return; // 지정된 국가만 표시
+      if (!(code in countries)) return;
 
       const converted = amount * rate;
-      const examples = consumptionExamples[code] || [];
-      const example = examples.find(e => converted < e.limit)?.item || '식사 1회';
 
       const tr = document.createElement('tr');
 
@@ -250,7 +290,7 @@
       tdCountry.className = 'currency-cell';
       const flagImg = document.createElement('img');
       flagImg.src = countries[code].flag;
-      flagImg.alt = countries[code].name + ' 국기';
+      flagImg.alt = countries[code].name + ' flag';
       flagImg.className = 'flag';
       tdCountry.appendChild(flagImg);
       tdCountry.appendChild(document.createTextNode(countries[code].name));
@@ -261,23 +301,19 @@
       tr.appendChild(tdCode);
 
       const tdAmount = document.createElement('td');
-      tdAmount.textContent = converted.toFixed(2);
+      tdAmount.textContent = formatAmount(converted);
       tr.appendChild(tdAmount);
-
-      const tdExample = document.createElement('td');
-      tdExample.textContent = example;
-      tr.appendChild(tdExample);
 
       resultBody.appendChild(tr);
     });
   }
 
-  // 초기화
+  // Initialize
   populateBaseSelect();
   fetchRates();
   updateAmountDisplay();
-
 </script>
 
 </body>
 </html>
+
