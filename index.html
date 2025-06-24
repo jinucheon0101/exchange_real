@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Simple Currency Converter</title>
 <style>
-  /* Reset & basics */
   * { box-sizing: border-box; }
   body {
     margin: 0; padding: 0;
@@ -30,11 +29,10 @@
     margin: 0 auto;
     padding: 1rem;
   }
-
   label {
     font-weight: 600;
     display: block;
-    margin-bottom: 0.5rem;
+    margin: 0.8rem 0 0.3rem 0;
     color: #444;
   }
   select {
@@ -43,12 +41,11 @@
     font-size: 1rem;
     border-radius: 8px;
     border: 1px solid #ccc;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     appearance: none;
     background: white url("data:image/svg+xml,%3Csvg fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center / 16px 16px;
     cursor: pointer;
   }
-
   #amountDisplay {
     font-size: 2.8rem;
     font-weight: 700;
@@ -56,18 +53,17 @@
     background: #fefefe;
     border-radius: 12px;
     padding: 1rem 1.2rem;
-    margin-bottom: 1.5rem;
+    margin: 1.5rem 0 2rem 0;
     box-shadow:
       0 4px 6px rgba(255, 111, 97, 0.3),
       0 2px 4px rgba(255, 111, 97, 0.25);
     user-select: none;
   }
-
   #keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
   .keyBtn {
     background: white;
@@ -88,37 +84,20 @@
   .keyBtn:active {
     background-color: #ffd8d3;
   }
-
-  #resultTable {
-    width: 100%;
-    border-collapse: collapse;
+  #resultSection {
     background: white;
+    padding: 1rem 1.2rem;
     border-radius: 12px;
-    overflow: hidden;
     box-shadow:
       0 4px 8px rgba(222, 67, 19, 0.15);
-  }
-  #resultTable th,
-  #resultTable td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f0f0f0;
+    font-size: 1.4rem;
     text-align: center;
-    font-size: 1rem;
-  }
-  #resultTable th {
-    background-color: #ff6f61;
-    color: white;
     font-weight: 600;
   }
-  #resultTable tr:last-child td {
-    border-bottom: none;
-  }
-
   .currency-cell {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
-    justify-content: flex-start;
   }
   .flag {
     width: 28px;
@@ -128,7 +107,6 @@
     box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
   }
 
-  /* Mobile */
   @media (max-width: 480px) {
     #amountDisplay {
       font-size: 2.2rem;
@@ -137,10 +115,8 @@
       font-size: 1.8rem;
       height: 56px;
     }
-    #resultTable th,
-    #resultTable td {
-      font-size: 0.9rem;
-      padding: 10px 12px;
+    #resultSection {
+      font-size: 1.2rem;
     }
   }
 </style>
@@ -149,8 +125,13 @@
 
 <header>Simple Currency Converter</header>
 <main>
-  <label for="baseCurrency">Select Base Currency</label>
-  <select id="baseCurrency" aria-label="Select base currency">
+  <label for="baseCurrency">From</label>
+  <select id="baseCurrency" aria-label="Base currency">
+    <!-- dynamically populated -->
+  </select>
+
+  <label for="targetCurrency">To</label>
+  <select id="targetCurrency" aria-label="Target currency">
     <!-- dynamically populated -->
   </select>
 
@@ -171,32 +152,24 @@
     <div class="keyBtn" role="button" tabindex="0" id="clearBtn">⌫</div>
   </div>
 
-  <table id="resultTable" aria-label="Conversion results">
-    <thead>
-      <tr>
-        <th>Country</th>
-        <th>Currency</th>
-        <th>Converted Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- results dynamically inserted -->
-    </tbody>
-  </table>
+  <div id="resultSection" aria-live="polite" aria-atomic="true">
+    Converted Amount: <span id="convertedAmount">-</span>
+  </div>
 </main>
 
 <script>
   const apiKey = 'e6af8843c57bbaeeb525e285'; // Your API key
   const baseSelect = document.getElementById('baseCurrency');
+  const targetSelect = document.getElementById('targetCurrency');
   const amountDisplay = document.getElementById('amountDisplay');
   const keypad = document.getElementById('keypad');
-  const resultBody = document.querySelector('#resultTable tbody');
+  const convertedAmountSpan = document.getElementById('convertedAmount');
 
   let amountStr = '0';
   let baseCurrency = 'USD';
+  let targetCurrency = 'KRW';
   let rates = {};
 
-  // Countries with flags (using flagcdn)
   const countries = {
     USD: { name: 'United States', flag: 'https://flagcdn.com/us.svg' },
     EUR: { name: 'Eurozone', flag: 'https://flagcdn.com/eu.svg' },
@@ -216,14 +189,15 @@
     MXN: { name: 'Mexico', flag: 'https://flagcdn.com/mx.svg' },
   };
 
-  function populateBaseSelect() {
+  function populateSelect(selectElement, selectedValue) {
+    selectElement.innerHTML = '';
     Object.entries(countries).forEach(([code, info]) => {
       const option = document.createElement('option');
       option.value = code;
       option.textContent = `${info.name} (${code})`;
-      baseSelect.appendChild(option);
+      if (code === selectedValue) option.selected = true;
+      selectElement.appendChild(option);
     });
-    baseSelect.value = baseCurrency;
   }
 
   function updateAmountDisplay() {
@@ -251,12 +225,17 @@
       else amountStr += key;
     }
     updateAmountDisplay();
-    calculateAndRender();
+    calculateAndDisplay();
   });
 
   baseSelect.addEventListener('change', e => {
     baseCurrency = e.target.value;
     fetchRates();
+  });
+
+  targetSelect.addEventListener('change', e => {
+    targetCurrency = e.target.value;
+    calculateAndDisplay();
   });
 
   function fetchRates() {
@@ -265,7 +244,7 @@
       .then(data => {
         if (data.result === 'success') {
           rates = data.conversion_rates;
-          calculateAndRender();
+          calculateAndDisplay();
         } else {
           alert('Failed to load exchange rates.');
         }
@@ -273,47 +252,29 @@
       .catch(() => alert('Error fetching exchange rates.'));
   }
 
-  function calculateAndRender() {
+  function calculateAndDisplay() {
     if (!rates) return;
     const amount = parseFloat(amountStr);
     if (isNaN(amount)) return;
-    resultBody.innerHTML = '';
 
-    Object.entries(rates).forEach(([code, rate]) => {
-      if (!(code in countries)) return;
+    const rate = rates[targetCurrency];
+    if (!rate) {
+      convertedAmountSpan.textContent = 'N/A';
+      return;
+    }
 
-      const converted = amount * rate;
-
-      const tr = document.createElement('tr');
-
-      const tdCountry = document.createElement('td');
-      tdCountry.className = 'currency-cell';
-      const flagImg = document.createElement('img');
-      flagImg.src = countries[code].flag;
-      flagImg.alt = countries[code].name + ' flag';
-      flagImg.className = 'flag';
-      tdCountry.appendChild(flagImg);
-      tdCountry.appendChild(document.createTextNode(countries[code].name));
-      tr.appendChild(tdCountry);
-
-      const tdCode = document.createElement('td');
-      tdCode.textContent = code;
-      tr.appendChild(tdCode);
-
-      const tdAmount = document.createElement('td');
-      tdAmount.textContent = formatAmount(converted);
-      tr.appendChild(tdAmount);
-
-      resultBody.appendChild(tr);
-    });
+    const converted = amount * rate;
+    convertedAmountSpan.textContent = formatAmount(converted);
   }
 
-  // Initialize
-  populateBaseSelect();
+  // Initialize selects and fetch rates
+  populateSelect(baseSelect, baseCurrency);
+  populateSelect(targetSelect, targetCurrency);
   fetchRates();
   updateAmountDisplay();
 </script>
 
 </body>
 </html>
+
 
