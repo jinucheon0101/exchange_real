@@ -21,6 +21,17 @@
     font-weight: 700;
     background: linear-gradient(45deg, #ff6f61, #de4313);
     color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  header a {
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #ffe3dd;
+    margin-left: 12px;
+    text-decoration: underline;
+    cursor: pointer;
   }
   main {
     flex: 1;
@@ -145,18 +156,6 @@
     margin-top: 0;
     margin-bottom: 2rem;
   }
-  .currency-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .flag {
-    width: 28px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
-  }
 
   @media (max-width: 480px) {
     #amountDisplay {
@@ -175,7 +174,11 @@
 </head>
 <body>
 
-<header>Simple Currency Converter</header>
+<header>
+  Simple Currency Converter
+  <a href="about.html">About Currency Converter</a>
+</header>
+
 <main>
   <div class="select-row">
     <div class="custom-select" id="baseSelectContainer" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="baseLabel">
