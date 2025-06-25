@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>Simple Currency Converter</title>
+<title>Simple Currency Converter with Share</title>
 
 <style>
   * { box-sizing: border-box; }
@@ -150,6 +150,23 @@
     margin-top: 0;
     margin-bottom: 0.5rem;
   }
+  #shareSection {
+    text-align: center;
+    margin-top: 1rem;
+  }
+  #shareBtn {
+    background: #ff6f61;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.4rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #shareBtn:hover {
+    background: #de4313;
+  }
   @media (max-width: 480px) {
     #amountDisplay {
       font-size: 2.2rem;
@@ -216,6 +233,9 @@
     Converted Amount: <span id="convertedAmount">-</span>
   </div>
 
+  <div id="shareSection">
+    <button id="shareBtn">Share Conversion</button>
+  </div>
 </main>
 
 <script>
@@ -423,3 +443,4 @@
 </script>
 </body>
 </html>
+
