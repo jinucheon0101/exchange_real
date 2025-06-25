@@ -102,7 +102,7 @@
     background: #fefefe;
     border-radius: 12px;
     padding: 1rem 1.2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     box-shadow:
       0 4px 6px rgba(255, 111, 97, 0.3),
       0 2px 4px rgba(255, 111, 97, 0.25);
@@ -112,7 +112,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
   .keyBtn {
     background: white;
@@ -142,7 +142,34 @@
     font-size: 1.4rem;
     text-align: center;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 2rem;
+  }
+  .currency-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .flag {
+    width: 28px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
+  }
+
+  @media (max-width: 480px) {
+    #amountDisplay {
+      font-size: 2.2rem;
+    }
+    .keyBtn {
+      font-size: 1.8rem;
+      height: 56px;
+    }
+    #resultSection {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
   }
 </style>
 </head>
@@ -150,10 +177,6 @@
 
 <header>Simple Currency Converter</header>
 <main>
-  <div id="resultSection" aria-live="polite" aria-atomic="true">
-    Converted Amount: <span id="convertedAmount">-</span>
-  </div>
-
   <div class="select-row">
     <div class="custom-select" id="baseSelectContainer" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="baseLabel">
       <label id="baseLabel" style="display:none">Base currency</label>
@@ -189,6 +212,10 @@
     <div class="keyBtn" role="button" tabindex="0">.</div>
     <div class="keyBtn" role="button" tabindex="0">0</div>
     <div class="keyBtn" role="button" tabindex="0" id="clearBtn">⌫</div>
+  </div>
+
+  <div id="resultSection" aria-live="polite" aria-atomic="true">
+    Converted Amount: <span id="convertedAmount">-</span>
   </div>
 </main>
 
@@ -400,6 +427,3 @@
 
 </body>
 </html>
-
-
-
