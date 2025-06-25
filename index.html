@@ -8,9 +8,6 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Adsense 스크립트 (필요하면 넣기) -->
-<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
-
 <style>
   * { box-sizing: border-box; }
   body {
@@ -439,6 +436,7 @@
     if (!targetSelectContainer.contains(e.target)) toggleSelectList(targetSelectList, false);
   });
 
+  // Fetch latest rates from API
   function fetchRates() {
     fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`)
       .then(res => res.json())
@@ -453,8 +451,20 @@
       .catch(() => alert('Error fetching exchange rates.'));
   }
 
+  // Calculate and show converted amount
   function calculateAndDisplay() {
     if (!rates) return;
     const amount = parseFloat(amountStr);
-    if (is
+    if (isNaN(amount)) return;
 
+    const rate = rates[targetCurrency];
+    if (!rate) {
+      convertedAmountSpan.textContent = 'N/A';
+      return;
+    }
+
+    const converted = amount * rate;
+    convertedAmountSpan.textContent = formatAmount(converted);
+  }
+
+  // Fetch historical data for last 30 days for graph
