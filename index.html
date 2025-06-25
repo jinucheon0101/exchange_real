@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Simple Currency Converter</title>
+<!-- Adsense 스크립트: 한 번만 넣으면 됨 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 <style>
   * { box-sizing: border-box; }
   body {
@@ -154,7 +157,12 @@
     text-align: center;
     font-weight: 600;
     margin-top: 0;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #adsense-container {
+    margin: 20px 0;
+    text-align: center;
   }
 
   @media (max-width: 480px) {
@@ -167,7 +175,7 @@
     }
     #resultSection {
       font-size: 1.2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
     }
   }
 </style>
@@ -219,6 +227,22 @@
 
   <div id="resultSection" aria-live="polite" aria-atomic="true">
     Converted Amount: <span id="convertedAmount">-</span>
+  </div>
+
+  <!-- 애드센스 광고 공간 -->
+  <div id="adsense-container">
+    <!-- 애드센스 광고 코드 붙여 넣기 -->
+    <!--
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+      data-ad-slot="1234567890"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    -->
   </div>
 </main>
 
@@ -430,3 +454,4 @@
 
 </body>
 </html>
+
