@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>Simple Currency Converter with Graph & Share</title>
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Simple Currency Converter</title>
 
 <style>
   * { box-sizing: border-box; }
@@ -48,11 +45,6 @@
     display: flex;
     gap: 10px;
     margin-bottom: 1rem;
-  }
-  @media (max-width: 480px) {
-    .select-row {
-      flex-wrap: nowrap;
-    }
   }
   .custom-select {
     flex: 1;
@@ -158,30 +150,6 @@
     margin-top: 0;
     margin-bottom: 0.5rem;
   }
-  #graphContainer {
-    background: white;
-    padding: 1rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(222, 67, 19, 0.15);
-    margin-bottom: 1rem;
-  }
-  #shareSection {
-    text-align: center;
-    margin-top: 1rem;
-  }
-  #shareBtn {
-    background: #ff6f61;
-    color: white;
-    border: none;
-    padding: 0.8rem 1.4rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
-  }
-  #shareBtn:hover {
-    background: #de4313;
-  }
   @media (max-width: 480px) {
     #amountDisplay {
       font-size: 2.2rem;
@@ -248,14 +216,6 @@
     Converted Amount: <span id="convertedAmount">-</span>
   </div>
 
-  <div id="graphContainer">
-    <canvas id="rateChart" aria-label="Exchange rate history chart" role="img"></canvas>
-  </div>
-
-  <div id="shareSection">
-    <button id="shareBtn" aria-label="Share conversion result">Share Conversion</button>
-  </div>
-
 </main>
 
 <script>
@@ -298,10 +258,6 @@
   const convertedAmountSpan = document.getElementById('convertedAmount');
   const resultSection = document.getElementById('resultSection');
 
-  const shareBtn = document.getElementById('shareBtn');
-  const rateChartCtx = document.getElementById('rateChart').getContext('2d');
-  let rateChart;
-
   let amountStr = '0';
   let baseCurrency = 'USD';
   let targetCurrency = 'KRW';
@@ -335,7 +291,6 @@
           baseSelectText.textContent = `${info.name} (${code})`;
           toggleSelectList(baseSelectList, false);
           fetchRates();
-          fetchHistoricalRates();
         } else {
           targetCurrency = code;
           targetSelectHeader.querySelector('img.flag').src = info.flag;
@@ -343,11 +298,9 @@
           targetSelectText.textContent = `${info.name} (${code})`;
           toggleSelectList(targetSelectList, false);
           calculateAndDisplay();
-          fetchHistoricalRates();
         }
       });
 
-      // Keyboard support
       item.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -376,7 +329,6 @@
 
   // Initialize selects with default values
   function initSelects() {
-    // Setup header images and texts
     baseSelectHeader.querySelector('img.flag').src = countries[baseCurrency].flag;
     baseSelectHeader.querySelector('img.flag').alt = `${countries[baseCurrency].name} flag`;
     baseSelectText.textContent = `${countries[baseCurrency].name} (${baseCurrency})`;
@@ -415,7 +367,6 @@
     }
     updateAmountDisplay();
     calculateAndDisplay();
-    fetchHistoricalRates();
   });
 
   baseSelectHeader.addEventListener('click', () => {
@@ -430,13 +381,11 @@
     toggleSelectList(targetSelectList, !isActive);
   });
 
-  // Close dropdowns if clicked outside
   document.addEventListener('click', e => {
     if (!baseSelectContainer.contains(e.target)) toggleSelectList(baseSelectList, false);
     if (!targetSelectContainer.contains(e.target)) toggleSelectList(targetSelectList, false);
   });
 
-  // Fetch latest rates from API
   function fetchRates() {
     fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`)
       .then(res => res.json())
@@ -451,7 +400,6 @@
       .catch(() => alert('Error fetching exchange rates.'));
   }
 
-  // Calculate and show converted amount
   function calculateAndDisplay() {
     if (!rates) return;
     const amount = parseFloat(amountStr);
@@ -467,4 +415,11 @@
     convertedAmountSpan.textContent = formatAmount(converted);
   }
 
-  // Fetch historical data for last 30 days for graph
+  // Initialize everything
+  initSelects();
+  fetchRates();
+  updateAmountDisplay();
+
+</script>
+</body>
+</html>
