@@ -29,23 +29,72 @@
     margin: 0 auto;
     padding: 1rem;
   }
-  label {
-    font-weight: 600;
-    display: block;
-    margin: 0.8rem 0 0.3rem 0;
-    color: #444;
-  }
-  select {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+  /* Container for From/To selects */
+  .select-row {
+    display: flex;
+    gap: 10px;
     margin-bottom: 1rem;
-    appearance: none;
-    background: white url("data:image/svg+xml,%3Csvg fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center / 16px 16px;
+  }
+  @media (max-width: 480px) {
+    .select-row {
+      flex-wrap: nowrap;
+    }
+  }
+  .custom-select {
+    flex: 1;
+    position: relative;
+    user-select: none;
+  }
+  .select-header {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .select-header img.flag {
+    width: 24px;
+    height: 16px;
+    border-radius: 3px;
+    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
+  }
+  .select-list {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(222, 67, 19, 0.15);
+    z-index: 10;
+    display: none;
+  }
+  .select-list.active {
+    display: block;
+  }
+  .select-item {
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
   }
+  .select-item:hover {
+    background: #ffd8d3;
+  }
+  .select-item img.flag {
+    width: 24px;
+    height: 16px;
+    border-radius: 3px;
+  }
+
   #amountDisplay {
     font-size: 2.8rem;
     font-weight: 700;
@@ -53,7 +102,7 @@
     background: #fefefe;
     border-radius: 12px;
     padding: 1rem 1.2rem;
-    margin: 1.5rem 0 2rem 0;
+    margin-bottom: 2rem;
     box-shadow:
       0 4px 6px rgba(255, 111, 97, 0.3),
       0 2px 4px rgba(255, 111, 97, 0.25);
@@ -93,31 +142,7 @@
     font-size: 1.4rem;
     text-align: center;
     font-weight: 600;
-  }
-  .currency-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .flag {
-    width: 28px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
-  }
-
-  @media (max-width: 480px) {
-    #amountDisplay {
-      font-size: 2.2rem;
-    }
-    .keyBtn {
-      font-size: 1.8rem;
-      height: 56px;
-    }
-    #resultSection {
-      font-size: 1.2rem;
-    }
+    margin-bottom: 1rem;
   }
 </style>
 </head>
@@ -125,15 +150,29 @@
 
 <header>Simple Currency Converter</header>
 <main>
-  <label for="baseCurrency">From</label>
-  <select id="baseCurrency" aria-label="Base currency">
-    <!-- dynamically populated -->
-  </select>
+  <div id="resultSection" aria-live="polite" aria-atomic="true">
+    Converted Amount: <span id="convertedAmount">-</span>
+  </div>
 
-  <label for="targetCurrency">To</label>
-  <select id="targetCurrency" aria-label="Target currency">
-    <!-- dynamically populated -->
-  </select>
+  <div class="select-row">
+    <div class="custom-select" id="baseSelectContainer" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="baseLabel">
+      <label id="baseLabel" style="display:none">Base currency</label>
+      <div class="select-header" id="baseSelectHeader">
+        <img class="flag" src="" alt="" />
+        <span id="baseSelectText"></span>
+      </div>
+      <div class="select-list" role="listbox" id="baseSelectList"></div>
+    </div>
+
+    <div class="custom-select" id="targetSelectContainer" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="targetLabel">
+      <label id="targetLabel" style="display:none">Target currency</label>
+      <div class="select-header" id="targetSelectHeader">
+        <img class="flag" src="" alt="" />
+        <span id="targetSelectText"></span>
+      </div>
+      <div class="select-list" role="listbox" id="targetSelectList"></div>
+    </div>
+  </div>
 
   <div id="amountDisplay" aria-live="polite" aria-atomic="true">0</div>
 
@@ -151,24 +190,10 @@
     <div class="keyBtn" role="button" tabindex="0">0</div>
     <div class="keyBtn" role="button" tabindex="0" id="clearBtn">⌫</div>
   </div>
-
-  <div id="resultSection" aria-live="polite" aria-atomic="true">
-    Converted Amount: <span id="convertedAmount">-</span>
-  </div>
 </main>
 
 <script>
   const apiKey = 'e6af8843c57bbaeeb525e285'; // Your API key
-  const baseSelect = document.getElementById('baseCurrency');
-  const targetSelect = document.getElementById('targetCurrency');
-  const amountDisplay = document.getElementById('amountDisplay');
-  const keypad = document.getElementById('keypad');
-  const convertedAmountSpan = document.getElementById('convertedAmount');
-
-  let amountStr = '0';
-  let baseCurrency = 'USD';
-  let targetCurrency = 'KRW';
-  let rates = {};
 
   const countries = {
     USD: { name: 'United States', flag: 'https://flagcdn.com/us.svg' },
@@ -189,15 +214,107 @@
     MXN: { name: 'Mexico', flag: 'https://flagcdn.com/mx.svg' },
   };
 
-  function populateSelect(selectElement, selectedValue) {
-    selectElement.innerHTML = '';
+  // Elements
+  const baseSelectContainer = document.getElementById('baseSelectContainer');
+  const targetSelectContainer = document.getElementById('targetSelectContainer');
+
+  const baseSelectHeader = document.getElementById('baseSelectHeader');
+  const targetSelectHeader = document.getElementById('targetSelectHeader');
+
+  const baseSelectText = document.getElementById('baseSelectText');
+  const targetSelectText = document.getElementById('targetSelectText');
+
+  const baseSelectList = document.getElementById('baseSelectList');
+  const targetSelectList = document.getElementById('targetSelectList');
+
+  const amountDisplay = document.getElementById('amountDisplay');
+  const keypad = document.getElementById('keypad');
+  const convertedAmountSpan = document.getElementById('convertedAmount');
+  const resultSection = document.getElementById('resultSection');
+
+  let amountStr = '0';
+  let baseCurrency = 'USD';
+  let targetCurrency = 'KRW';
+  let rates = {};
+
+  // Populate custom select lists
+  function populateSelectList(selectList, isBase) {
+    selectList.innerHTML = '';
     Object.entries(countries).forEach(([code, info]) => {
-      const option = document.createElement('option');
-      option.value = code;
-      option.textContent = `${info.name} (${code})`;
-      if (code === selectedValue) option.selected = true;
-      selectElement.appendChild(option);
+      const item = document.createElement('div');
+      item.className = 'select-item';
+      item.setAttribute('role', 'option');
+      item.setAttribute('data-code', code);
+      item.tabIndex = 0;
+
+      const flagImg = document.createElement('img');
+      flagImg.src = info.flag;
+      flagImg.alt = `${info.name} flag`;
+      flagImg.className = 'flag';
+
+      const textNode = document.createTextNode(`${info.name} (${code})`);
+
+      item.appendChild(flagImg);
+      item.appendChild(textNode);
+
+      item.addEventListener('click', () => {
+        if (isBase) {
+          baseCurrency = code;
+          baseSelectHeader.querySelector('img.flag').src = info.flag;
+          baseSelectHeader.querySelector('img.flag').alt = `${info.name} flag`;
+          baseSelectText.textContent = `${info.name} (${code})`;
+          toggleSelectList(baseSelectList, false);
+          fetchRates();
+        } else {
+          targetCurrency = code;
+          targetSelectHeader.querySelector('img.flag').src = info.flag;
+          targetSelectHeader.querySelector('img.flag').alt = `${info.name} flag`;
+          targetSelectText.textContent = `${info.name} (${code})`;
+          toggleSelectList(targetSelectList, false);
+          calculateAndDisplay();
+        }
+      });
+
+      // Keyboard support
+      item.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        }
+      });
+
+      selectList.appendChild(item);
     });
+  }
+
+  function toggleSelectList(selectList, show) {
+    if (show) {
+      selectList.classList.add('active');
+      selectList.parentElement.setAttribute('aria-expanded', 'true');
+    } else {
+      selectList.classList.remove('active');
+      selectList.parentElement.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function closeAllSelectLists() {
+    toggleSelectList(baseSelectList, false);
+    toggleSelectList(targetSelectList, false);
+  }
+
+  // Initialize selects with default values
+  function initSelects() {
+    // Setup header images and texts
+    baseSelectHeader.querySelector('img.flag').src = countries[baseCurrency].flag;
+    baseSelectHeader.querySelector('img.flag').alt = `${countries[baseCurrency].name} flag`;
+    baseSelectText.textContent = `${countries[baseCurrency].name} (${baseCurrency})`;
+
+    targetSelectHeader.querySelector('img.flag').src = countries[targetCurrency].flag;
+    targetSelectHeader.querySelector('img.flag').alt = `${countries[targetCurrency].name} flag`;
+    targetSelectText.textContent = `${countries[targetCurrency].name} (${targetCurrency})`;
+
+    populateSelectList(baseSelectList, true);
+    populateSelectList(targetSelectList, false);
   }
 
   function updateAmountDisplay() {
@@ -228,14 +345,22 @@
     calculateAndDisplay();
   });
 
-  baseSelect.addEventListener('change', e => {
-    baseCurrency = e.target.value;
-    fetchRates();
+  baseSelectHeader.addEventListener('click', () => {
+    const isActive = baseSelectList.classList.contains('active');
+    closeAllSelectLists();
+    toggleSelectList(baseSelectList, !isActive);
   });
 
-  targetSelect.addEventListener('change', e => {
-    targetCurrency = e.target.value;
-    calculateAndDisplay();
+  targetSelectHeader.addEventListener('click', () => {
+    const isActive = targetSelectList.classList.contains('active');
+    closeAllSelectLists();
+    toggleSelectList(targetSelectList, !isActive);
+  });
+
+  // Close dropdowns if clicked outside
+  document.addEventListener('click', e => {
+    if (!baseSelectContainer.contains(e.target)) toggleSelectList(baseSelectList, false);
+    if (!targetSelectContainer.contains(e.target)) toggleSelectList(targetSelectList, false);
   });
 
   function fetchRates() {
@@ -267,14 +392,14 @@
     convertedAmountSpan.textContent = formatAmount(converted);
   }
 
-  // Initialize selects and fetch rates
-  populateSelect(baseSelect, baseCurrency);
-  populateSelect(targetSelect, targetCurrency);
+  // Initialize
+  initSelects();
   fetchRates();
   updateAmountDisplay();
 </script>
 
 </body>
 </html>
+
 
 
