@@ -23,14 +23,14 @@
     background: linear-gradient(45deg, #ff6f61, #de4313);
     color: white;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
   }
   header a {
     font-weight: 400;
     font-size: 0.9rem;
     color: #ffe3dd;
-    margin-left: 12px;
+    margin-top: 4px;
     text-decoration: underline;
     cursor: pointer;
   }
@@ -107,11 +107,18 @@
     background: #fefefe;
     border-radius: 12px;
     padding: 1rem 1.2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     box-shadow:
       0 4px 6px rgba(255, 111, 97, 0.3),
       0 2px 4px rgba(255, 111, 97, 0.25);
     user-select: none;
+  }
+  #convertedDisplay {
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #de4313;
   }
   #keypad {
     display: grid;
@@ -175,9 +182,9 @@
       font-size: 1.8rem;
       height: 56px;
     }
-    #resultSection {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
+    #convertedDisplay {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
     }
   }
 </style>
@@ -186,7 +193,7 @@
 
 <header>
   Simple Currency Converter
-  <a href="about.html" style="font-weight:400; font-size:0.9rem; color:#ffe3dd; margin-left:12px; text-decoration:underline; cursor:pointer;">
+  <a href="about.html" style="font-weight:400; font-size:0.9rem; margin-top:4px; color:#ffe3dd; text-decoration:underline; cursor:pointer;">
     About Currency Converter
   </a>
 </header>
@@ -214,6 +221,8 @@
 
   <div id="amountDisplay" aria-live="polite" aria-atomic="true">0</div>
 
+  <div id="convertedDisplay" aria-live="polite" aria-atomic="true">Converted Amount: -</div>
+
   <div id="keypad" role="grid" aria-label="Number input keypad">
     <div class="keyBtn" role="button" tabindex="0">1</div>
     <div class="keyBtn" role="button" tabindex="0">2</div>
@@ -227,10 +236,6 @@
     <div class="keyBtn" role="button" tabindex="0">.</div>
     <div class="keyBtn" role="button" tabindex="0">0</div>
     <div class="keyBtn" role="button" tabindex="0" id="clearBtn">⌫</div>
-  </div>
-
-  <div id="resultSection" aria-live="polite" aria-atomic="true">
-    Converted Amount: <span id="convertedAmount">-</span>
   </div>
 
   <div id="shareSection">
@@ -274,9 +279,9 @@
   const targetSelectList = document.getElementById('targetSelectList');
 
   const amountDisplay = document.getElementById('amountDisplay');
+  const convertedDisplay = document.getElementById('convertedDisplay');
   const keypad = document.getElementById('keypad');
-  const convertedAmountSpan = document.getElementById('convertedAmount');
-  const resultSection = document.getElementById('resultSection');
+  const shareBtn = document.getElementById('shareBtn');
 
   let amountStr = '0';
   let baseCurrency = 'USD';
@@ -427,20 +432,40 @@
 
     const rate = rates[targetCurrency];
     if (!rate) {
-      convertedAmountSpan.textContent = 'N/A';
+      convertedDisplay.textContent = 'Converted Amount: N/A';
       return;
     }
 
     const converted = amount * rate;
-    convertedAmountSpan.textContent = formatAmount(converted);
+    convertedDisplay.textContent = `Converted Amount: ${formatAmount(converted)}`;
   }
+
+  // Social share
+  shareBtn.addEventListener('click', () => {
+    const shareText = `Currency Conversion: ${amountStr} ${baseCurrency} = ${convertedDisplay.textContent.replace('Converted Amount: ', '')} ${targetCurrency}`;
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Currency Converter',
+        text: shareText,
+        url: shareUrl
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(`${shareText} \n${shareUrl}`).then(() => {
+        alert('Conversion details copied to clipboard!');
+      }, () => {
+        alert('Sharing not supported on this browser.');
+      });
+    }
+  });
 
   // Initialize everything
   initSelects();
   fetchRates();
   updateAmountDisplay();
-
 </script>
+
 </body>
 </html>
 
